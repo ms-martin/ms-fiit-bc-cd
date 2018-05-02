@@ -18,30 +18,30 @@ class Siamese:
 
     def convnet(self, inputx, training):
         input_reshaped = tf.reshape(inputx, [-1, 128, 64, 3])
-        self.conv1 = self.conv_layer(input_reshaped, [5, 5, 3, 64], [64], "conv1")
+        conv1 = self.conv_layer(input_reshaped, [5, 5, 3, 16], [16], "conv1")
 
-        max1 = tf.layers.max_pooling2d(inputs=self.conv1,
+        max1 = tf.layers.max_pooling2d(inputs=conv1,
                                        pool_size=[2, 2],
                                        strides=2,
                                        name="max1")
 
-        self.conv2 = self.conv_layer(max1, [5, 5, 64, 128], [128], "conv2")
+        conv2 = self.conv_layer(max1, [5, 5, 16, 32], [32], "conv2")
 
-        max2 = tf.layers.max_pooling2d(inputs=self.conv2,
+        max2 = tf.layers.max_pooling2d(inputs=conv2,
                                        pool_size=[2, 2],
                                        strides=2,
                                        name="max2")
 
-        max2flat = tf.reshape(max2, [-1, 32 * 16 * 128], name="max2flat")
+        max2flat = tf.reshape(max2, [-1, 32 * 16 * 32], name="max2flat")
 
-        dense1 = self.fc_layer(max2flat, 4096, "dense1")
+        dense1 = self.fc_layer(max2flat, 512, "dense1")
 
         dropout1 = tf.layers.dropout(inputs=dense1,
-                                     rate=0.3,
+                                     rate=0.4,
                                      name="dropout1",
                                      training=training)
 
-        out = self.fc_layer(dropout1, 128, "dense2")
+        out = self.fc_layer(dropout1, 3, "dense2")
         return out
 
     def conv_layer(self, inputx, kernel_shape, bias_shape, name):

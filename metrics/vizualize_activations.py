@@ -11,15 +11,14 @@ import tensorflow as tf
 import os
 import numpy as np
 
-import models.model_f7_c64_c128_d4096_o256 as model
+import models.model_c32_c64_d512_o32 as model
 import dataprep.ilidsvid_seq as dataset
 
-model_name = 'model_f7_c64_c128_d4096_o256'
+model_name = 'model_c32_c64_d512_o32'
 
 sess = tf.InteractiveSession()
 
 siamese = model.Siamese(False)
-train_step = tf.train.GradientDescentOptimizer(0.00001).minimize(siamese.loss)
 saver = tf.train.Saver()
 tf.global_variables_initializer().run()
 
@@ -40,12 +39,44 @@ batch_size = 2
 
 batch_x1, batch_x2, batch_y = dataset.get_batch(batch_size, False)
 
+shape, filters = sess.run([tf.shape(siamese.conv1), siamese.conv1], feed_dict={
+    siamese.input1: batch_x1,
+    siamese.input2: batch_x2,
+    siamese.labels: batch_y})
+
+filters = np.moveaxis(filters, 3, 1)
+i = 1
+plt.figure(figsize=(8, 4))
+for image in filters[0]:
+    plt.subplot(8, 4, i)
+    plt.axis('off')
+    plt.imshow(image)
+    i += 1
+
+plt.subplots_adjust(wspace=0.1, hspace=0.1)
+plt.savefig('results/activations_conv1_' + model_name + '.png')
+plt.close()
+
 shape, filters = sess.run([tf.shape(siamese.conv2), siamese.conv2], feed_dict={
     siamese.input1: batch_x1,
     siamese.input2: batch_x2,
     siamese.labels: batch_y})
 
-var = [v for v in tf.trainable_variables() if v.name == 'siamese/conv1_weights:0'][0]
+filters = np.moveaxis(filters, 3, 1)
+i = 1
+plt.figure(figsize=(8, 8))
+for image in filters[0]:
+    plt.subplot(8, 8, i)
+    plt.axis('off')
+    plt.imshow(image)
+    i += 1
+
+plt.subplots_adjust(wspace=0.1, hspace=0.1)
+plt.savefig('results/activations_conv2_' + model_name + '.png')
+plt.close()
+
+weight_name = 'conv1_weights:0'
+var = [v for v in tf.trainable_variables() if v.name == 'siamese/' + weight_name][0]
 var_val, var_shape = sess.run([var, tf.shape(var)])
 
 var_val = np.reshape(var_val, tuple(var_shape))
@@ -63,16 +94,6 @@ for filter_weights in var_val:
     i += 1
 
 plt.subplots_adjust(wspace=0.1, hspace=0.1)
-plt.show()
+plt.savefig('results/weights_' + model_name + '_' + weight_name + '.png')
+plt.close()
 
-# filters = np.moveaxis(filters, 3, 1)
-# i = 1
-# plt.figure(figsize=(16, 8))
-# for image in filters[0]:
-#     plt.subplot(16, 8, i)
-#     plt.axis('off')
-#     plt.imshow(image)
-#     i += 1
-#
-# plt.subplots_adjust(wspace=0.1, hspace=0.1)
-# plt.show()

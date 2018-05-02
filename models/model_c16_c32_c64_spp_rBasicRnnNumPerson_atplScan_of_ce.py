@@ -48,27 +48,27 @@ class Siamese:
 
     def siamese_leg(self, input_x):
         input_reshaped = tf.reshape(input_x, [self.batch_size * self.seq_len, 128, 64, self.channels])
-        conv1 = self.conv_layer(input_reshaped, [5, 5, self.channels, 16], [16], "conv1")
+        self.conv1 = self.conv_layer(input_reshaped, [5, 5, self.channels, 16], [16], "conv1")
 
-        max1 = tf.layers.max_pooling2d(inputs=conv1,
+        max1 = tf.layers.max_pooling2d(inputs=self.conv1,
                                        pool_size=[2, 2],
                                        strides=2,
                                        name="max1")
 
-        conv2 = self.conv_layer(max1, [5, 5, 16, 32], [32], "conv2")
+        self.conv2 = self.conv_layer(max1, [5, 5, 16, 32], [32], "conv2")
 
-        max2 = tf.layers.max_pooling2d(inputs=conv2,
+        max2 = tf.layers.max_pooling2d(inputs=self.conv2,
                                        pool_size=[2, 2],
                                        strides=2,
                                        name="max2")
 
-        conv3 = self.conv_layer(max2, [5, 5, 32, 64], [64], "conv3")
+        self.conv3 = self.conv_layer(max2, [5, 5, 32, 64], [64], "conv3")
 
-        spp = self.spp_layer(conv3, [8, 4, 2, 1], "spp")
+        self.spp = self.spp_layer(self.conv3, [8, 4, 2, 1], "spp")
 
-        rnn = self.rnn_layers(spp, self.hidden_size)
-        rnn = tf.reshape(rnn, [self.batch_size, self.seq_len, self.hidden_size], name="rnn_flat")
-        return rnn
+        self.rnn = self.rnn_layers(self.spp, self.hidden_size)
+        self.rnn = tf.reshape(self.rnn, [self.batch_size, self.seq_len, self.hidden_size], name="rnn_flat")
+        return self.rnn
 
     def spp_layer(self, input_, levels, name):
         shape = input_.get_shape().as_list()
@@ -104,12 +104,12 @@ class Siamese:
         # in1_temp_mat = tf.scan(lambda a, x: tf.matmul(x, temp_mat), input1)
         in1_temp_mat = tf.matmul(tf.reshape(input1, [self.batch_size * self.seq_len, self.hidden_size]), temp_mat)
         in1_temp_mat = tf.reshape(in1_temp_mat, [self.batch_size, self.seq_len, self.hidden_size])
-        in1_temp_mat_in2 = tf.matmul(in1_temp_mat, input2, transpose_b=True)
+        self.in1_temp_mat_in2 = tf.matmul(in1_temp_mat, input2, transpose_b=True)
 
-        atpl_mat = tf.tanh(in1_temp_mat_in2, name="atpl_mat")
+        self.atpl_mat = tf.tanh(self.in1_temp_mat_in2, name="atpl_mat")
 
-        max_col = tf.reduce_max(atpl_mat, axis=1, name="max_col")
-        max_row = tf.reduce_max(atpl_mat, axis=2, name="max_row")
+        max_col = tf.reduce_max(self.atpl_mat, axis=1, name="max_col")
+        max_row = tf.reduce_max(self.atpl_mat, axis=2, name="max_row")
 
         col_softmax = tf.nn.softmax(max_col)
         row_softmax = tf.nn.softmax(max_row)

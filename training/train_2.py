@@ -8,10 +8,10 @@ import os
 import numpy as np
 import pickle
 
-import models.model_c128_c256_d4096_o256 as model
+import models.model_c16_c32_d512_o3 as model
 import dataprep.ilidsvid_seq as dataset
 
-model_name = 'model_c128_c256_d4096_o256'
+model_name = 'model_c16_c32_d512_o3'
 
 sess = tf.InteractiveSession()
 
@@ -52,7 +52,7 @@ losses_window = []
 avg_loss = 0
 
 for step in range(1000000):
-    batch_x1, batch_x2, batch_y = dataset.get_augmented_batch(20, True)
+    batch_x1, batch_x2, batch_y = dataset.get_augmented_batch(80, True)
 
     _, loss_v = sess.run([train_step, siamese.loss], feed_dict={
         siamese.input1: batch_x1,

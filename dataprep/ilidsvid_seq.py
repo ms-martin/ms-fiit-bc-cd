@@ -155,4 +155,20 @@ def get_augmented_batch(batch_size, training):
     return cam1_images, cam2_images, batch_labels
 
 
-#get_augmented_batch(10, True)
+def get_augmented_batch_image_labels(batch_size, training):
+    pairs = get_pairs(batch_size, training)
+
+    cam1_images = [pair.image1 for pair in pairs]
+    cam2_images = [pair.image2 for pair in pairs]
+    det = augmentor().to_deterministic()
+    cam1_images = augment(cam1_images, 128, 64, 3, det)
+    cam2_images = augment(cam2_images, 128, 64, 3, det)
+    batch_labels = [pair.label for pair in pairs]
+    batch_labels = np.asarray(batch_labels, dtype=np.float32)
+
+    cam1_images_labels = [pair.image1_label for pair in pairs]
+    cam2_images_labels = [pair.image2_label for pair in pairs]
+
+    return cam1_images, cam2_images, batch_labels, cam1_images_labels, cam2_images_labels
+
+# get_augmented_batch(10, True)
