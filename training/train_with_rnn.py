@@ -6,21 +6,20 @@ from builtins import input
 import tensorflow as tf
 import os
 
-import models.model_c16_c32_c32_spp_r1024_atpl_of as model
+import models.model_c64_c128_r512_d512_o128 as model
 import dataprep.ilidsvid_vid as dataset
 import numpy as np
 
-model_path = 'model_rnn_c16_c32_c32_spp_r1024_atpl_of_aug_m5_b1'
+model_path = 'model_rnn_c64_c128_r512_d512_o128'
 
 sess = tf.InteractiveSession()
 
 siamese = model.Siamese(training=True,
-                        optical_flow=True,
-                        augment=True,
-                        margin=5,
-                        batch_size=1,
-                        seq_len=16)
-train_step = tf.train.GradientDescentOptimizer(0.001).minimize(siamese.loss)
+                        optical_flow=False,
+                        batch_size=20,
+                        seq_len=20,
+                        hidden_size=512)
+train_step = tf.train.GradientDescentOptimizer(0.00001).minimize(siamese.loss)
 saver = tf.train.Saver()
 tf.global_variables_initializer().run()
 
@@ -42,22 +41,22 @@ avg_loss = 0
 for step in range(1000000):
 
     if siamese.batch_size > 1:
-        batch_x1, batch_x2, batch_y = dataset.get_batch(training=siamese.training,
-                                                        optical_flow=siamese.optical_flow,
-                                                        augment=siamese.augment,
-                                                        batch_size=siamese.batch_size,
-                                                        seq_len=siamese.seq_len)
+        batch_x1, batch_x2, batch_y, x1_label, x2_label = dataset.get_batch(training=siamese.training,
+                                                                            optical_flow=siamese.optical_flow,
+                                                                            augment=True,
+                                                                            batch_size=siamese.batch_size,
+                                                                            seq_len=siamese.seq_len)
 
     else:
         if step % 2 == 0:
             pair = dataset.get_positive_sequence_pair(training=siamese.training,
                                                       dense_optical_flow=siamese.optical_flow,
-                                                      augment=siamese.augment,
+                                                      augment=True,
                                                       seq_len=siamese.seq_len)
         else:
             pair = dataset.get_negative_sequence_pair(training=siamese.training,
                                                       dense_optical_flow=siamese.optical_flow,
-                                                      augment=siamese.augment,
+                                                      augment=True,
                                                       seq_len=siamese.seq_len)
 
         batch_x1 = pair.images1

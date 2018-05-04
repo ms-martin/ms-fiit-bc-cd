@@ -3,25 +3,28 @@ import tensorflow as tf
 
 class Siamese:
 
-    def __init__(self, training, batch_size, seq_len, hidden_size):
+    def __init__(self, training, batch_size, seq_len, hidden_size, optical_flow):
+        self.training = training
         self.batch_size = batch_size
         self.seq_len = seq_len
         self.hidden_size = hidden_size
-        self.input1 = tf.placeholder(tf.float32, [None, 24576])
-        self.input2 = tf.placeholder(tf.float32, [None, 24576])
+        self.optical_flow = optical_flow
+        self.channels = 5 if self.optical_flow else 3
+        self.input1 = tf.placeholder(tf.float32, [None, 128 * 64 * self.channels])
+        self.input2 = tf.placeholder(tf.float32, [None, 128 * 64 * self.channels])
 
         with tf.variable_scope("siamese") as scope:
-            self.out1 = self.convnet(self.input1, training)
+            self.out1 = self.convnet(self.input1)
             scope.reuse_variables()
-            self.out2 = self.convnet(self.input2, training)
+            self.out2 = self.convnet(self.input2)
 
         self.labels = tf.placeholder(tf.float32, [None])
         self.loss = self.contrastive_loss()
         self.distance = self.euclidian_distance()
 
-    def convnet(self, inputx, training):
-        input_reshaped = tf.reshape(inputx, [-1, 128, 64, 3])
-        conv1 = self.conv_layer(input_reshaped, [5, 5, 3, 64], [64], "conv1")
+    def convnet(self, inputx):
+        input_reshaped = tf.reshape(inputx, [-1, 128, 64, self.channels])
+        conv1 = self.conv_layer(input_reshaped, [5, 5, self.channels, 64], [64], "conv1")
 
         max1 = tf.layers.max_pooling2d(inputs=conv1,
                                        pool_size=[2, 2],
@@ -41,7 +44,7 @@ class Siamese:
 
         dense1 = self.fc_layer(rnn, 512, "dense1")
 
-        dropout1 = tf.nn.dropout(dense1, 0.5 if training else 1.0, name="dropout1")
+        dropout1 = tf.nn.dropout(dense1, 0.5 if self.training else 1.0, name="dropout1")
 
         out = self.fc_layer(dropout1, 128, "dense2")
         return out

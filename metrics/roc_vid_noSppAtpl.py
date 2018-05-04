@@ -21,7 +21,8 @@ sess = tf.InteractiveSession()
 siamese = model.Siamese(training=False,
                         batch_size=20,
                         seq_len=20,
-                        hidden_size=512)
+                        hidden_size=512,
+                        optical_flow=False)
 saver = tf.train.Saver()
 tf.global_variables_initializer().run()
 
@@ -42,21 +43,21 @@ test_labels = []
 
 for i in range(1000):
     if siamese.batch_size > 1:
-        x1_test, x2_test, sim_labels, x1_label, x2_label = dataset.get_batch(training=False,
-                                                                             optical_flow=False,
+        x1_test, x2_test, sim_labels, x1_label, x2_label = dataset.get_batch(training=siamese.training,
+                                                                             optical_flow=siamese.optical_flow,
                                                                              augment=False,
                                                                              batch_size=siamese.batch_size,
                                                                              seq_len=siamese.seq_len)
 
     else:
         if i % 2:
-            pair = dataset.get_positive_sequence_pair(training=False,
-                                                      dense_optical_flow=False,
+            pair = dataset.get_positive_sequence_pair(training=siamese.training,
+                                                      dense_optical_flow=siamese.optical_flow,
                                                       augment=False,
                                                       seq_len=siamese.seq_len)
         else:
-            pair = dataset.get_negative_sequence_pair(training=False,
-                                                      dense_optical_flow=False,
+            pair = dataset.get_negative_sequence_pair(training=siamese.training,
+                                                      dense_optical_flow=siamese.optical_flow,
                                                       augment=False,
                                                       seq_len=siamese.seq_len)
 

@@ -11,10 +11,10 @@ import tensorflow as tf
 import os
 import numpy as np
 
-import models.model_c32_c64_d512_o32 as model
+import models.model_c64_c128_d4096_o256 as model
 import dataprep.ilidsvid_seq as dataset
 
-model_name = 'model_c32_c64_d512_o32'
+model_name = 'model_c64_c128_d4096_o256'
 
 sess = tf.InteractiveSession()
 
@@ -46,9 +46,9 @@ shape, filters = sess.run([tf.shape(siamese.conv1), siamese.conv1], feed_dict={
 
 filters = np.moveaxis(filters, 3, 1)
 i = 1
-plt.figure(figsize=(8, 4))
+plt.figure(figsize=(8, 8))
 for image in filters[0]:
-    plt.subplot(8, 4, i)
+    plt.subplot(8, 8, i)
     plt.axis('off')
     plt.imshow(image)
     i += 1
@@ -64,9 +64,9 @@ shape, filters = sess.run([tf.shape(siamese.conv2), siamese.conv2], feed_dict={
 
 filters = np.moveaxis(filters, 3, 1)
 i = 1
-plt.figure(figsize=(8, 8))
+plt.figure(figsize=(8, 16))
 for image in filters[0]:
-    plt.subplot(8, 8, i)
+    plt.subplot(8, 16, i)
     plt.axis('off')
     plt.imshow(image)
     i += 1

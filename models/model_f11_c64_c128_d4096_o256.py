@@ -18,16 +18,16 @@ class Siamese:
 
     def convnet(self, inputx, training):
         input_reshaped = tf.reshape(inputx, [-1, 128, 64, 3])
-        conv1 = self.conv_layer(input_reshaped, [11, 11, 3, 64], [64], "conv1")
+        self.conv1 = self.conv_layer(input_reshaped, [11, 11, 3, 64], [64], "conv1")
 
-        max1 = tf.layers.max_pooling2d(inputs=conv1,
+        max1 = tf.layers.max_pooling2d(inputs=self.conv1,
                                        pool_size=[2, 2],
                                        strides=2,
                                        name="max1")
 
-        conv2 = self.conv_layer(max1, [11, 11, 64, 128], [128], "conv2")
+        self.conv2 = self.conv_layer(max1, [11, 11, 64, 128], [128], "conv2")
 
-        max2 = tf.layers.max_pooling2d(inputs=conv2,
+        max2 = tf.layers.max_pooling2d(inputs=self.conv2,
                                        pool_size=[2, 2],
                                        strides=2,
                                        name="max2")
