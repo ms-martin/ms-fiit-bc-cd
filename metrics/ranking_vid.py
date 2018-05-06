@@ -14,7 +14,7 @@ import models.model_c16_c32_c64_spp_rBasicRnnNumPerson_atplScan_of_ce as model
 import dataprep.ilidsvid_rank_vid as dataset
 
 
-def show_pair(_pair, _seq_len, _channels, pair_id, _model_name, positive):
+def show_pair(_pair, _seq_len, _channels, pair_id, _model_name, state):
     cam1_images = _pair.images1
     cam1_images_labels = _pair.images1_label
 
@@ -39,7 +39,7 @@ def show_pair(_pair, _seq_len, _channels, pair_id, _model_name, positive):
                   transform=sub2.transAxes)
         plt.axis('off')
 
-    plt.savefig('results/' + _model_name + '/' + str(positive) + '_match_' + str(pair_id) + '.png')
+    plt.savefig('results/' + _model_name + '/' + state + '_match_' + str(pair_id) + '.png')
     plt.close()
 
 
@@ -86,6 +86,7 @@ ranks = []
 
 show_positive_pair_id = 0
 show_negative_pair_id = 0
+show_confused_pair_id = 0
 
 for person in persons:
     pairs = dataset.get_person_sequence_pairs(template=person,
@@ -115,10 +116,12 @@ for person in persons:
     ranks.append(rank)
 
     if rank == 0:
-        show_pair(pairs[rank], siamese.seq_len, siamese.channels, show_positive_pair_id, model_name, True)
+        show_pair(pairs[rank], siamese.seq_len, siamese.channels, show_positive_pair_id, model_name, 'Positive')
         show_positive_pair_id += 1
     else:
-        show_pair(pairs[rank], siamese.seq_len, siamese.channels, show_negative_pair_id, model_name, False)
+        show_pair(pairs[rank], siamese.seq_len, siamese.channels, show_negative_pair_id, model_name, 'Negative')
+        show_negative_pair_id += 1
+        show_pair(pairs[rank], siamese.seq_len, siamese.channels, show_confused_pair_id, model_name, 'Confused')
         show_negative_pair_id += 1
 
     print(person, rank)
