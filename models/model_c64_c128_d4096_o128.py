@@ -4,6 +4,7 @@ import tensorflow as tf
 class Siamese:
 
     def __init__(self, training):
+        self.training = training
         self.input1 = tf.placeholder(tf.float32, [None, 24576])
         self.input2 = tf.placeholder(tf.float32, [None, 24576])
 
