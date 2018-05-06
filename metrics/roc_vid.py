@@ -99,6 +99,9 @@ false_negatives = []
 true_positive_rates = []
 false_positive_rates = []
 
+f1s = []
+accs = []
+
 for i in thresholds:
     tp = 0
     tn = 0
@@ -123,6 +126,8 @@ for i in thresholds:
     false_negatives.append(fn)
     true_positive_rates.append(tp / (tp + fn))
     false_positive_rates.append(fp / (fp + tn))
+    f1s.append((2 * tp) / (2 * tp + fp + fn))
+    accs.append((tp + tn) / (tp + tn + fp + fn))
 
 for i in range(len(distances)):
     print('%d : Match %d: distance %.3f' % (i, test_labels[i], distances[i]))
@@ -134,20 +139,25 @@ for i in range(len(thresholds)):
     print('FP: ' + str(false_positives[i]))
     print('FN: ' + str(false_negatives[i]))
 
-plt.plot(false_positive_rates, true_positive_rates, 'g')
-plt.plot([0, 1], [0, 1], 'r')
+true_positive_rates = np.asarray(true_positive_rates, dtype=np.float32)
+false_positive_rates = np.asarray(false_positive_rates, dtype=np.float32)
+auc = np.trapz(true_positive_rates, x=false_positive_rates)
+acc = max(accs)
+f1 = max(f1s)
+
+plt.plot(false_positive_rates, true_positive_rates, 'g', label=model_path)
+plt.legend()
+plt.annotate('max F1', xy=(false_positive_rates[f1s.index(f1)], true_positive_rates[f1s.index(f1)]),
+             xytext=(false_positive_rates[f1s.index(f1)] - 0.2, true_positive_rates[f1s.index(f1)] - 0.2),
+             arrowprops=dict(facecolor='black', shrink=0.05))
+plt.plot([0, 1], [0, 1], 'r--', alpha=0.5)
 plt.axis([0, 1, 0, 1])
 plt.xlabel('FPR (false positive rate)')
 plt.ylabel('TPR (true positive rate)')
 plt.savefig('results/roc_' + model_path + '.png')
 plt.close()
 
-true_positive_rates = np.asarray(true_positive_rates, dtype=np.float32)
-false_positive_rates = np.asarray(false_positive_rates, dtype=np.float32)
-auc = np.trapz(true_positive_rates, x=false_positive_rates)
-print('AUC', auc)
-
-auc = tf.metrics.auc(test_labels, distances / max_dist)
-print('AUC-TF', auc)
-
-print(max_dist)
+with open("results/metrics_" + model_path + ".txt", "w") as file:
+    file.write("F1: {0} at threshold {1}\n".format(f1, thresholds[f1s.index(f1)]))
+    file.write("AUC: {0}\n".format(auc))
+    file.write("ACC: {0}\n".format(acc))
