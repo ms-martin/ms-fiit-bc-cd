@@ -6,7 +6,9 @@ from builtins import input
 import tensorflow as tf
 import os
 import numpy as np
-from matplotlib import pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 import models.model_c16_c32_c64_spp_rBasicRnnNumPerson_atplScan_of_ce as model
 import dataprep.ilidsvid_rank_vid as dataset
@@ -113,10 +115,10 @@ for person in persons:
     ranks.append(rank)
 
     if rank == 0:
-        show_pair(pairs[0], siamese.seq_len, siamese.channels, show_positive_pair_id, model_name, True)
+        show_pair(pairs[rank], siamese.seq_len, siamese.channels, show_positive_pair_id, model_name, True)
         show_positive_pair_id += 1
     else:
-        show_pair(pairs[0], siamese.seq_len, siamese.channels, show_negative_pair_id, model_name, False)
+        show_pair(pairs[rank], siamese.seq_len, siamese.channels, show_negative_pair_id, model_name, False)
         show_negative_pair_id += 1
 
     print(person, rank)

@@ -6,7 +6,9 @@ from builtins import input
 import tensorflow as tf
 import os
 import numpy as np
-from matplotlib import pyplot as plt
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
 
 import models.model_c64_c128_d4096_o128 as model
 import dataprep.ilidsvid_rank as dataset
@@ -99,10 +101,10 @@ for person in persons:
     ranks.append(rank)
 
     if rank == 0:
-        show_pair(pairs[0], show_positive_pair_id, model_name, True)
+        show_pair(pairs[rank], show_positive_pair_id, model_name, True)
         show_positive_pair_id += 1
     else:
-        show_pair(pairs[0], show_negative_pair_id, model_name, False)
+        show_pair(pairs[rank], show_negative_pair_id, model_name, False)
         show_negative_pair_id += 1
 
     print(person, rank)

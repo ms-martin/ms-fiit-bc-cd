@@ -6,11 +6,11 @@ from builtins import input
 import tensorflow as tf
 import os
 
-import models.model_c16_c64_c64_spp_rBasicRnnNumPerson_atplScan_of_ce as model
+import models.model_c16_c32_c64_spp_rBasicRnnNumPerson_atplScan_of_ce as model
 import dataprep.ilidsvid_vid as dataset
 import numpy as np
 
-model_path = 'model_rnn_c16_c64_c64_spp_rBasicRnnNumPerson_atplScan_ce'
+model_path = 'model_rnn_c16_c32_c64_spp_rBasicRnnNumPerson_atplScan_ce'
 
 sess = tf.InteractiveSession()
 
@@ -18,7 +18,7 @@ siamese = model.Siamese(training=True,
                         optical_flow=True,
                         augment=True,
                         margin=5,
-                        batch_size=20,
+                        batch_size=60,
                         seq_len=20,
                         num_of_persons=len(dataset.get_persons()))
 
