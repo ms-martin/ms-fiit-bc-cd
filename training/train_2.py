@@ -52,7 +52,7 @@ losses_window = []
 avg_loss = 0
 
 for step in range(1000000):
-    batch_x1, batch_x2, batch_y = dataset.get_augmented_batch(80, True)
+    batch_x1, batch_x2, batch_y = dataset.get_augmented_batch(250, True)
 
     _, loss_v = sess.run([train_step, siamese.loss], feed_dict={
         siamese.input1: batch_x1,

@@ -67,7 +67,7 @@ if os.path.isfile(model_ckpt):
 if load:
     saver.restore(sess, './weights/' + model_path + '.ckpt')
 
-threshold = 4.4279
+treshold = 4.4153
 
 pair_id = 0
 
@@ -78,9 +78,9 @@ for i in range(100):
     else:
         pair = dataset.get_negative_pair(training=siamese.training)
 
-    x1_test = pair.image1
-    x2_test = pair.image2
-    sim_labels = pair.label
+    x1_test = np.reshape(pair.image1, (1,24576)) / 255.0
+    x2_test = np.reshape(pair.image2, (1,24576)) / 255.0
+    sim_labels = np.reshape(pair.label, (1))
     x1_label = pair.image1_label
     x2_label = pair.image2_label
 
@@ -89,14 +89,19 @@ for i in range(100):
         siamese.input2: x2_test,
         siamese.labels: sim_labels})
 
-    if int(sim_labels) == 0:
-        if distance > i:
+    distance = distance[0]
+    print(distance)
+
+    if sim_labels[0] == 0:
+        if distance > treshold:
             show_pair(pair, pair_id, model_path, 'true_negative')
         else:
             show_pair(pair, pair_id, model_path, 'false_positive')
 
-    elif int(sim_labels) == 1:
-        if distance > i:
+    elif sim_labels[0] == 1:
+        if distance > treshold:
             show_pair(pair, pair_id, model_path, 'false_negative')
         else:
             show_pair(pair, pair_id, model_path, 'true_positive')
+
+    pair_id += 1

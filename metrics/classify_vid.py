@@ -75,7 +75,7 @@ if os.path.isfile(model_ckpt):
 if load:
     saver.restore(sess, './weights/' + model_path + '.ckpt')
 
-threshold = 4.4279
+treshold = 4.4279
 
 pair_id = 0
 
@@ -105,14 +105,18 @@ for i in range(100):
         siamese.seq1_labels: x1_label,
         siamese.seq2_labels: x2_label})
 
+    distance = distance[0]
+
     if int(sim_labels) == 0:
-        if distance > i:
+        if distance > treshold:
             show_pair(pair, siamese.seq_len, siamese.channels, pair_id, model_path, 'true_negative')
         else:
             show_pair(pair, siamese.seq_len, siamese.channels, pair_id, model_path, 'false_positive')
 
     elif int(sim_labels) == 1:
-        if distance > i:
+        if distance > treshold:
             show_pair(pair, siamese.seq_len, siamese.channels, pair_id, model_path, 'false_negative')
         else:
             show_pair(pair, siamese.seq_len, siamese.channels, pair_id, model_path, 'true_positive')
+
+    pair_id += 1

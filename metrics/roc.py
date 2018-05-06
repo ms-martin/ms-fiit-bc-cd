@@ -9,14 +9,14 @@ import os
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
-import models.model_c64_c128_spp_d4096_o128 as model
+import models.model_c64_c128_d4096_o128 as model
 import dataprep.ilidsvid_seq as dataset
 
-model_path = 'model_c64_c128_spp_d4096_o128'
+model_path = 'model_c64_c128_d4096_o128'
 
 sess = tf.InteractiveSession()
 
-siamese = model.Siamese(False, 80)
+siamese = model.Siamese(False)
 saver = tf.train.Saver()
 tf.global_variables_initializer().run()
 
@@ -53,6 +53,7 @@ test_labels = np.reshape(test_labels, (-1))
 
 num_of_thresholds = 2000
 max_dist = max(distances)
+print(max_dist)
 threshold_step = max_dist / num_of_thresholds
 
 thresholds = []

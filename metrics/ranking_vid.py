@@ -54,7 +54,7 @@ siamese = model.Siamese(training=False,
                         augment=False,
                         margin=5,
                         batch_size=1,
-                        seq_len=20,
+                        seq_len=10,
                         num_of_persons=len(dataset.get_persons(False)))
 saver = tf.train.Saver()
 tf.global_variables_initializer().run()

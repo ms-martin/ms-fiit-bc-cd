@@ -45,7 +45,7 @@ classes = {}
 for person in persons:
     classes[person] = []
 
-for _ in range(10):
+for _ in range(100):
     batch_x1, batch_x2, batch_y, x1_labels, x2_labels = dataset.get_augmented_batch_image_labels(2, False)
 
     out1 = sess.run([siamese.out1], feed_dict={

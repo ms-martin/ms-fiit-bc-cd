@@ -11,10 +11,10 @@ import matplotlib
 
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
-import models.model_c16_c32_c32_spp_rBasicRnnNumPerson_atplScan_of_ce as model
+import models.model_c16_c32_c64_spp_rBasicRnnNumPerson_atplScan_of_ce as model
 import dataprep.ilidsvid_vid as dataset
 
-model_path = 'model_rnn_c16_c32_c32_spp_rBasicRnnNumPerson_atplScan_ce'
+model_path = 'model_rnn_c16_c32_c64_spp_rBasicRnnNumPerson_atplScan_ce'
 
 sess = tf.InteractiveSession()
 

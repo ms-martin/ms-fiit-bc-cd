@@ -10,7 +10,7 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-import models.model_c64_c128_d4096_o128 as model
+import models.model_c50_c100_d3000_o200 as model
 import dataprep.ilidsvid_rank as dataset
 
 
@@ -40,7 +40,7 @@ def show_pair(_pair, pair_id, _model_name, positive):
     plt.close()
 
 
-model_name = 'model_c64_c128_d4096_o128'
+model_name = 'model_c50_c100_d3000_o200'
 
 sess = tf.InteractiveSession()
 
