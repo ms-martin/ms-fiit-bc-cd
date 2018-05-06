@@ -6,27 +6,64 @@ from builtins import input
 import tensorflow as tf
 import os
 import numpy as np
+from matplotlib import pyplot as plt
 
 import models.model_c16_c32_c64_spp_rBasicRnnNumPerson_atplScan_of_ce as model
 import dataprep.ilidsvid_rank_vid as dataset
 
-model_name = 'model_rnn_c16_c32_c64_spp_rBasicRnnNumPerson_atplScan_of_ce'
+
+def show_pair(_pair, _seq_len, _channels, pair_id, _model_name, positive):
+    cam1_images = _pair.images1
+    cam1_images_labels = _pair.images1_label
+
+    cam2_images = _pair.images2
+    cam2_images_labels = _pair.images2_label
+
+    fig = plt.figure(figsize=(8, 8))
+
+    col = 2
+    row = _seq_len
+
+    for i in range(0, _seq_len):
+        sub1 = fig.add_subplot(col, row, i + 1)
+        plt.imshow(np.reshape(cam1_images[i - 1], (128, 64, _channels))[:128, :64, 2:5])
+        sub1.text(0.5, -0.1, cam1_images_labels, size=4, ha="center",
+                  transform=sub1.transAxes)
+        plt.axis('off')
+
+        sub2 = fig.add_subplot(col, row, i + 1 + _seq_len)
+        plt.imshow(np.reshape(cam2_images[i - 1], (128, 64, _channels))[:128, :64, 2:5])
+        sub2.text(0.5, -0.1, cam2_images_labels, size=4, ha="center",
+                  transform=sub2.transAxes)
+        plt.axis('off')
+
+    plt.savefig('results/' + _model_name + '/' + str(positive) + '_match_' + str(pair_id) + '.png')
+    plt.close()
+
+
+model_name = 'model_rnn_c16_c32_c64_spp_rBasicRnnNumPerson_atplScan_ce'
 
 sess = tf.InteractiveSession()
 
 test_only = False
 
-siamese = model.Siamese(training=True,
+siamese = model.Siamese(training=False,
                         optical_flow=True,
                         augment=False,
                         margin=5,
                         batch_size=1,
-                        seq_len=1,
+                        seq_len=20,
                         num_of_persons=len(dataset.get_persons(False)))
 saver = tf.train.Saver()
 tf.global_variables_initializer().run()
 
 load = False
+
+log_dir = './results/' + model_name
+
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
 model_ckpt = './weights/' + model_name + '.ckpt.meta'
 
 if os.path.isfile(model_ckpt):
@@ -44,6 +81,9 @@ persons = dataset.get_persons(test_only)
 ranks_histogram = np.zeros(shape=[len(persons)], dtype=np.int32)
 confused_pairs = []
 ranks = []
+
+show_positive_pair_id = 0
+show_negative_pair_id = 0
 
 for person in persons:
     pairs = dataset.get_person_sequence_pairs(template=person,
@@ -71,6 +111,14 @@ for person in persons:
         rank += 1
     ranks_histogram[rank] += 1
     ranks.append(rank)
+
+    if rank == 0:
+        show_pair(pairs[0], siamese.seq_len, siamese.channels, show_positive_pair_id, model_name, True)
+        show_positive_pair_id += 1
+    else:
+        show_pair(pairs[0], siamese.seq_len, siamese.channels, show_negative_pair_id, model_name, False)
+        show_negative_pair_id += 1
+
     print(person, rank)
 
 for i in range(0, len(ranks_histogram) - 1):

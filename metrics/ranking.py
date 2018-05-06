@@ -6,21 +6,55 @@ from builtins import input
 import tensorflow as tf
 import os
 import numpy as np
+from matplotlib import pyplot as plt
 
-import models.model_c64_c128_spp_d4096_o128 as model
+import models.model_c64_c128_d4096_o128 as model
 import dataprep.ilidsvid_rank as dataset
 
-model_name = 'model_c64_c128_spp_d4096_o128'
+
+def show_pair(_pair, pair_id, _model_name, positive):
+    plot_id = 1
+    pair_image1 = _pair.image1
+    pair_image2 = _pair.image2
+
+    pair_image1 = np.reshape(pair_image1, (128, 64, 3))
+    pair_image2 = np.reshape(pair_image2, (128, 64, 3))
+    plt.figure(figsize=(1, 2))
+
+    plt.subplot(1, 2, plot_id)
+    plt.axis('off')
+    plt.imshow(pair_image1)
+    plt.text(0.5, -0.1, _pair.image1_label, size=4, ha="center")
+
+    plot_id += 1
+
+    plt.subplot(1, 2, plot_id)
+    plt.axis('off')
+    plt.imshow(pair_image2)
+    plt.text(0.5, -0.1, _pair.image2_label, size=4, ha="center")
+
+    plt.subplots_adjust(wspace=0.1, hspace=0.1)
+    plt.savefig('results/' + model_name + '/' + str(positive) + '_match_' + str(pair_id) + '_' + _model_name + '.png')
+    plt.close()
+
+
+model_name = 'model_c64_c128_d4096_o128'
 
 sess = tf.InteractiveSession()
 
 test_only = False
 
-siamese = model.Siamese(False, 1)
+siamese = model.Siamese(False)
 saver = tf.train.Saver()
 tf.global_variables_initializer().run()
 
 load = False
+
+log_dir = './results/' + model_name
+
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
 model_ckpt = './weights/' + model_name + '.ckpt.meta'
 
 if os.path.isfile(model_ckpt):
@@ -38,6 +72,9 @@ persons = dataset.get_persons(test_only)
 ranks_histogram = np.zeros(shape=[len(persons)], dtype=np.int32)
 ranks = []
 confused_pairs = []
+
+show_positive_pair_id = 0
+show_negative_pair_id = 0
 
 for person in persons:
     pairs = dataset.get_person_pairs(person, test_only)
@@ -60,6 +97,14 @@ for person in persons:
         rank += 1
     ranks_histogram[rank] += 1
     ranks.append(rank)
+
+    if rank == 0:
+        show_pair(pairs[0], show_positive_pair_id, model_name, True)
+        show_positive_pair_id += 1
+    else:
+        show_pair(pairs[0], show_negative_pair_id, model_name, False)
+        show_negative_pair_id += 1
+
     print(person, rank)
 
 for i in range(0, len(ranks_histogram) - 1):
