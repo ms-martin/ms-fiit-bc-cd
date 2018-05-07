@@ -110,7 +110,7 @@ for person in persons:
         confused_pairs.append([pairs[0].images1_label, pairs[0].images2_label])
 
     rank = 0
-    while not pairs[rank].label:
+    while pairs[rank].label == 0:
         rank += 1
     ranks_histogram[rank] += 1
     ranks.append(rank)
