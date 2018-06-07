@@ -8,10 +8,10 @@ import os
 import numpy as np
 import pickle
 
-import models.model_c16_c32_d512_o3 as model
-import dataprep.ilidsvid_seq as dataset
+import models.model_c64_c128_d4096_o128 as model
+import dataprep.ilidsvid_seq_norm as dataset
 
-model_name = 'model_c16_c32_d512_o3'
+model_name = 'model_c64_c128_d4096_o128_normalized'
 
 sess = tf.InteractiveSession()
 

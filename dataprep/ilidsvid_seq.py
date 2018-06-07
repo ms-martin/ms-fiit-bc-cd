@@ -170,5 +170,3 @@ def get_augmented_batch_image_labels(batch_size, training):
     cam2_images_labels = [pair.image2_label for pair in pairs]
 
     return cam1_images, cam2_images, batch_labels, cam1_images_labels, cam2_images_labels
-
-# get_augmented_batch(10, True)
